@@ -1,0 +1,258 @@
+<?xml version="1.0" ?>
+<robot name="so100">
+
+  <link name="world"/>
+    <joint name="world_to_base" type="fixed">
+      <parent link="world"/>
+      <child link="base"/>
+      <origin xyz="0.124202 0.168068 -0.0300817" rpy="0 0 0"/>
+    </joint>
+
+  <link name="base">
+    <inertial>
+      <origin xyz="-0.14932 -0.16812 0.065966" rpy="0 0 0"/>
+      <mass value="0.147"/>
+      <inertia ixx="0.000114686" ixy="-4.59787e-07" ixz="4.97151e-06" iyy="0.000136117" iyz="9.75275e-08" izz="0.000130364"/>
+    </inertial>
+        
+    <!-- updated maually -->
+    <collision>
+      <origin xyz="-0.149402 -0.168167 0.0400817" rpy="1.5708 -1.67685e-15 1.5708"/>
+      <geometry>
+        <box size="0.12 0.02 0.10"/>
+      </geometry>
+    </collision>
+   
+    <!-- updated maually -->
+    <collision>
+      <origin xyz="-0.146702 -0.168068 0.0761817" rpy="-8.21148e-16 7.84513e-18 1.249e-15"/>
+      <geometry>
+        <box size="0.10 0.05 0.05"/>
+      </geometry>
+    </collision>
+   
+  </link>
+  
+  <link name="baseframe">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-9"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+  <joint name="baseframe_frame" type="fixed">
+    <origin xyz="-0.163038 -0.168068 0.0324817" rpy="1.6144e-15 7.84513e-18 1.33799e-15"/>
+    <parent link="base"/>
+    <child link="baseframe"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  
+  <link name="shoulder">
+    <inertial>
+      <origin xyz="-0.0307604 -1.66727e-05 -0.0252713" rpy="0 0 0"/>
+      <mass value="0.100006"/>
+      <inertia ixx="8.3759e-05" ixy="7.55525e-08" ixz="-1.16342e-06" iyy="8.10403e-05" iyz="1.54663e-07" izz="2.39783e-05"/>
+    </inertial>
+        
+    <!-- maually -->
+    <collision>
+      <origin xyz="-0.025 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.05 0.10"/>
+      </geometry>
+    </collision>    
+  </link>
+  
+  <link name="upper_arm">
+    <inertial>
+      <origin xyz="-0.0898471 -0.00838224 0.0184089" rpy="0 0 0"/>
+      <mass value="0.103"/>
+      <inertia ixx="4.08002e-05" ixy="-1.97819e-05" ixz="-4.03016e-08" iyy="0.000147318" iyz="8.97326e-09" izz="0.000142487"/>
+    </inertial>
+        
+    <!-- maually -->
+    <collision>
+      <origin xyz="-0.060 0.0 0.018" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.14 0.03 0.07"/>
+      </geometry>
+    </collision>    
+   
+  </link>
+  
+  <link name="lower_arm">
+    <inertial>
+      <origin xyz="-0.0980701 0.00324376 0.0182831" rpy="0 0 0"/>
+      <mass value="0.104"/>
+      <inertia ixx="2.87438e-05" ixy="7.41152e-06" ixz="1.26409e-06" iyy="0.000159844" iyz="-4.90188e-08" izz="0.00014529"/>
+    </inertial>
+      
+    <!-- maually -->
+    <collision>
+      <origin xyz="-0.055 0.005 0.018" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.13 0.035 0.07"/>
+      </geometry>
+    </collision>    
+  </link>
+  
+  <link name="wrist">
+    <inertial>
+      <origin xyz="-0.000103312 -0.0386143 0.0281156" rpy="0 0 0"/>
+      <mass value="0.079"/>
+      <inertia ixx="3.68263e-05" ixy="1.7893e-08" ixz="-5.28128e-08" iyy="2.5391e-05" iyz="3.6412e-06" izz="2.1e-05"/>
+    </inertial>
+        
+    <!-- maually -->
+    <collision>
+      <origin xyz="0 -0.030 0.023" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.04 0.084 0.06"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <link name="gripper">
+    <inertial>
+      <origin xyz="0.000213627 0.000245138 -0.025187" rpy="0 0 0"/>
+      <mass value="0.087"/>
+      <inertia ixx="2.75087e-05" ixy="-3.35241e-07" ixz="-5.7352e-06" iyy="4.33657e-05" iyz="-5.17847e-08" izz="3.45059e-05"/>
+    </inertial>
+        
+    <!--gripper base-->
+    <collision>
+      <origin xyz="0.0077 0.0001 -0.0234" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.05 0.04"/>
+      </geometry>
+    </collision>   
+    
+    <!--gripper-->
+    <collision>
+      <origin xyz="-0.025 0 -0.0225" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.020 0.030 0.045"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="-0.023 0 -0.055" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.020 0.020 0.020"/>
+      </geometry>
+    </collision> 
+    <collision>
+      <origin xyz="-0.020 0 -0.075" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.016 0.016 0.020"/>
+      </geometry>
+    </collision> 
+    <collision>
+      <origin xyz="-0.015 0 -0.090" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.010 0.014 0.010"/>
+      </geometry>
+    </collision>  
+    <collision>
+      <origin xyz="-0.013 0 -0.100" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.010 0.012 0.010"/>
+      </geometry>
+    </collision>
+     
+  </link>
+  
+  <link name="gripperframe">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-9"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+  
+  <joint name="gripperframe_frame" type="fixed">
+    <origin xyz="-0.0079 -0.000218121 -0.0981274" rpy="-0 1.5708 0"/>
+    <parent link="gripper"/>
+    <child link="gripperframe"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  
+  <link name="moving_jaw_so101_v1">
+    <inertial>
+      <origin xyz="-0.00157495 -0.0300244 0.0192755" rpy="0 0 0"/>
+      <mass value="0.012"/>
+      <inertia ixx="6.61427e-06" ixy="-3.19807e-07" ixz="-5.90717e-09" iyy="1.89032e-06" iyz="-1.09945e-07" izz="5.28738e-06"/>
+    </inertial>
+    
+    <!--base-->
+    <collision>
+      <origin xyz="0.003 -0.015 0.018" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.012 0.060 0.02"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="-0.001 -0.025 0.018" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.014 0.080 0.02"/>
+      </geometry>
+    </collision>
+    <!--step-->
+    <collision>
+      <origin xyz="-0.005 -0.066 0.018" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.010 0.01 0.02"/>
+      </geometry>
+    </collision>  
+    <!--tip-->
+    <collision>
+      <origin xyz="-0.007 -0.076 0.018" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.010 0.01 0.02"/>
+      </geometry>
+    </collision>     
+  </link>  
+  
+  
+  <joint name="joint_6" type="revolute">
+    <origin xyz="0.0202 0.0188 -0.0234" rpy="1.5708 -5.24284e-08 -1.41553e-15"/>
+    <parent link="gripper"/>
+    <child link="moving_jaw_so101_v1"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-0.174533" upper="1.74533"/>
+  </joint>
+  <joint name="joint_5" type="revolute">
+    <origin xyz="2.77556e-16 -0.0611 0.0181" rpy="1.5708 0.0486795 3.14159"/>
+    <parent link="wrist"/>
+    <child link="gripper"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-2.74385" upper="2.84121"/>
+  </joint>
+  <joint name="joint_4" type="revolute">
+    <origin xyz="-0.1349 0.0052 8.44651e-17" rpy="4.02456e-15 8.67362e-16 -1.5708"/>
+    <parent link="lower_arm"/>
+    <child link="wrist"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-1.65806" upper="1.65806"/>
+  </joint>
+  <joint name="joint_3" type="revolute">
+    <origin xyz="-0.11257 -0.028 2.09886e-16" rpy="-3.63608e-16 8.74301e-16 1.5708"/>
+    <parent link="upper_arm"/>
+    <child link="lower_arm"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-1.74533" upper="1.5708"/>
+  </joint>
+  <joint name="joint_2" type="revolute">
+    <origin xyz="-0.0303992 -0.0182778 -0.0542" rpy="-1.5708 -1.5708 0"/>
+    <parent link="shoulder"/>
+    <child link="upper_arm"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-1.74533" upper="1.74533"/>
+  </joint>
+  <joint name="joint_1" type="revolute">
+    <origin xyz="-0.124202 -0.168068 0.0948817" rpy="3.14159 4.18253e-17 -3.14159"/>
+    <parent link="base"/>
+    <child link="shoulder"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-1.91986" upper="1.91986"/>
+  </joint>
+</robot>

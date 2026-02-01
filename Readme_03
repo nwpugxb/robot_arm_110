@@ -1,0 +1,12 @@
+ls -l /dev/ttyUSB*
+
+sudo chmod 666 /dev/ttyUSB0
+
+永久解决（推荐）： 将自己加入串口组（需注销后重新登录生效）： sudo usermod -aG dialout $USER
+
+sudo ./WritePos /dev/ttyUSB1
+
+******************************************
+
+python code:
+change_id.py    ping.py    write_mid.py

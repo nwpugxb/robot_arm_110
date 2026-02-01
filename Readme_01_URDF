@@ -1,0 +1,83 @@
+https://github.com/TheRobotStudio/SO-ARM100
+
+https://huggingface.co/haixuantao/dora-bambot/blob/main/URDF/so101.urdf
+
+/************************************
+1. # 1. 进入你的工作空间
+cd ~/arm_101_ws
+# 2. 创建 src 文件夹 (如果还没有)
+mkdir -p src
+# 3. 进入 src 并创建一个新的功能包
+cd src
+# 这里我们将包命名为 so_arm101_description (这是ROS的标准命名习惯)
+ros2 pkg create --build-type ament_cmake so_arm101_description
+# 4. 在包里建立存放模型的文件夹
+cd so_arm101_description
+mkdir urdf
+mkdir meshes
+
+现在，你需要把你的文件移动到刚才创建的文件夹里。 把你的 so_arm_101.urdf 移动到 ~/arm_101_ws/src/so_arm101_description/urdf/ 目录下。关键点： 你有 .stl 或 .dae 格式的 3D 模型文件吗？（通常在 Individual 文件夹里或者需要另外下载）。如果有，请把它们全部放到 ~/arm_101_ws/src/so_arm101_description/meshes/ 目录下。
+
+/**************************************************************
+第一步：命令行快速检查 (Syntax Check)  check_urdf src/so_arm101_description/urdf/so_arm_101.urdf  失败信号： 报错提示 XML 解析错误。
+第二步：使用通用启动文件在 RViz 查看    
+1. sudo apt update
+sudo apt install ros-jazzy-urdf-tutorial
+2. # source 环境 (为了保险)
+source install/setup.bash
+ 运行预览
+ros2 launch urdf_tutorial display.launch.py model:=/home/xiaobo/arm_101_ws/src/so_arm101_description/urdf/so_arm_101.urdf
+
+/******** 出问题RVIZ中没有显示， -》 名字不匹配 ********** 改stl文件的名字 *************
+cd ~/arm_101_ws/src/so_arm101_description/meshes/
+# 重命名文件以匹配 URDF (大小写转换 + 添加版本后缀)
+mv Base_motor_holder_SO101.stl base_motor_holder_so101_v1.stl
+mv Base_SO101.stl base_so101_v2.stl
+mv WaveShare_Mounting_Plate_SO101.stl waveshare_mounting_plate_so101_v2.stl
+mv Motor_holder_SO101_Base.stl motor_holder_so101_base_v1.stl
+mv Rotation_Pitch_SO101.stl rotation_pitch_so101_v1.stl
+mv Upper_arm_SO101.stl upper_arm_so101_v1.stl
+mv Under_arm_SO101.stl under_arm_so101_v1.stl
+mv Motor_holder_SO101_Wrist.stl motor_holder_so101_wrist_v1.stl
+mv Wrist_Roll_Pitch_SO101.stl wrist_roll_pitch_so101_v2.stl
+mv Wrist_Roll_Follower_SO101.stl wrist_roll_follower_so101_v1.stl
+mv Moving_Jaw_SO101.stl moving_jaw_so101_v1.stl
+// 下载 sts3215_03a_v1.stl 和 sts3215_03a_no_horn_v1.stl
+# 检查结果
+ls
+
+重新编译：
+cd ~/arm_101_ws
+rm -rf build install log
+colcon build --symlink-install --packages-select so_arm101_description
+# 这一步必须做，因为我们刚才删除了 install 文件夹重新生成的
+source install/setup.bash
+# 再次运行预览
+ros2 launch urdf_tutorial display.launch.py model:=$(pwd)/src/so_arm101_description/urdf/so_arm_101.urdf
+#ros2 launch urdf_tutorial display.launch.py model:=src/so_arm101_description/urdf/so_arm_101_simplified.urdf
+
+
+/****************************************************
+机械臂在RVIZ中巨大，调整joint值看不到机械臂的移动。。。
+1. 在编辑器中使用 “查找替换” (Find & Replace) 功能：
+查找： .stl"/>
+替换为： .stl" scale="0.001 0.001 0.001"/>  //  stl unit mm, but rviz m
+点击： 全部替换 (Replace All)
+2. 为了解决 KDL does not support a root link with an inertia 这个警告，我们需要定义一个虚拟的 world 链接作为根，并且不要给它惯性。修改后的结构（推荐）： 请在 URDF 文件的最开头（<robot name="so100"> 之后），插入以下代码：
+
+XML
+  <link name="world"/>
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  
+修改并保存 URDF 后，重新编译.
+
+/*****************************************************
+你不需要修改代码，只需要在 RViz 界面里动两下鼠标：
+在 RViz 左侧的 Displays 面板中，找到 Global Options。
+点击 Fixed Frame 旁边的 base_link。
+将其手动改为 world 或者 base（这两个都行，因为你刚才在 URDF 里定义了它们）。
+推荐使用 world，这样更符合物理直觉。

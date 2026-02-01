@@ -1,0 +1,12 @@
+source /opt/ros/jazzy/setup.bash
+source ~/ws_moveit/install/setup.bash   // 通过源码构建的moveit2比系统安装的版本稳定
+
+cd ~/arm_101_ws
+source install/setup.bash
+
+ros2 launch moveit_setup_assistant setup_assistant.launch.py
+
+/***** moveit setup assistant 闪退，怀疑stl文件太复杂导致碰撞检测部分crash
+1. 用简单的box来replace碰撞中的stl，simplify_urdf.py
+2. 在RVIZ中调整box的大小。
+

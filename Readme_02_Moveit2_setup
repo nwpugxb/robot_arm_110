@@ -1,0 +1,61 @@
+source ~/ws_moveit/install/setup.bash   // 通过源码构建的moveit2比系统安装的版本稳定
+
+cd ~/arm_101_ws
+colcon build
+source install/setup.bash
+
+ros2 launch moveit_setup_assistant setup_assistant.launch.py
+
+/***** moveit setup assistant 闪退，怀疑stl文件太复杂导致碰撞检测部分crash
+1. 用简单的box来replace碰撞中的stl，simplify_urdf.py
+2. 在RVIZ中调整box的大小。
+ros2 launch urdf_tutorial display.launch.py model:=$(pwd)/src/so_arm101_description/urdf/so_arm_101_simplified.urdf  rviz_config:=src/so_arm101_description/urdf/my_arm_config.rviz
+
+ros2 run robot_state_publisher robot_state_publisher --ros-args -p robot_description:="$(cat /home/xiaobo/arm_101_ws/src/so_arm101_description/urdf/so_arm_101_simplified_bestpath.urdf)"
+
+*********************************
+moveit execute failure
+
+把 moveit_controllers.yaml 改成“明确 action_ns”的版本. 把你 /mnt/data/moveit_controllers.yaml 改成这样（关键是 action_ns: follow_joint_trajectory + controller 名字必须和 action 前缀一致：arm_controller / gripper_controller）：
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - arm_controller
+    - gripper_controller
+
+  arm_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
+
+  gripper_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    joints:
+      - joint_6
+
+************************************************
+1. 编译 arm_101_ws
+# 1. 加载环境
+source /opt/ros/jazzy/setup.bash
+source ~/ws_moveit/install/setup.bash
+# 2. 进入目录并清理
+cd ~/arm_101_ws
+rm -rf build/ install/
+# 3. 重新编译
+colcon build --symlink-install
+2. 启动 Demo
+编译完成后，加载环境并启动：
+source install/setup.bash
+ros2 launch so_arm101_moveit_config demo.launch.py
+
+*********************************************************
+
