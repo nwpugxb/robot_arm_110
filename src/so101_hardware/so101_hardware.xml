@@ -1,0 +1,9 @@
+<library path="so101_hardware">
+  <class name="so101_hardware/SO101HardwareInterface"
+         type="so101_hardware::SO101HardwareInterface"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Hardware interface for SO-ARM101 using STS3215 servos.
+    </description>
+  </class>
+</library>

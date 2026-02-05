@@ -10,3 +10,97 @@ sudo ./WritePos /dev/ttyUSB1
 
 python code:
 change_id.py    ping.py    write_mid.py
+
+*****************************************
+
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+
+***************************************
+第一步：创建 Package
+打开终端，在你的工作空间（如 ~/***_ws/src）下运行：
+ros2 pkg create --build-type ament_cmake so100_hardware --dependencies hardware_interface rclcpp pluginlib
+第二步：配置 package.xml
+确保你的 package.xml 包含以下必要的依赖：
+XML
+<depend>hardware_interface</depend>
+<depend>pluginlib</depend>
+<depend>rclcpp</depend>
+<depend>sensor_msgs</depend>
+第三步， hpp, cpp, cmakelists, package.xml
+第四步：注册插件 (so100_hardware.xml)在 package 根目录下创建该文件，以便 ROS 能找到这个插件。
+
+************************
+
+第一步：飞特 SDK 的 src 文件夹内的文件 - 要拷贝到/home/xiaobo/arm_101_ws/src/so101_hardware/external/SCServo
+修改 CMakeLists.txt 
+# 1. 包含路径：确保编译器能找到 SCServo.h
+include_directories(external/SCServo)
+# 2. 编译目标：把飞特的源码和你的 interface 源码编在一起
+add_library(so101_hardware SHARED
+  src/so101_interface.cpp
+  external/SCServo/SCServo.cpp
+  external/SCServo/SCSerial.cpp
+  external/SCServo/SMS_STS.cpp
+  external/SCServo/SCS.cpp
+)
+# 3. 链接依赖：确保能找到头文件
+target_include_directories(so101_hardware PRIVATE 
+  include 
+  external/SCServo
+)
+
+第二步：urdf更新 <ros2_control name="SO100Hardware" type="system"> *** </ros2_control>
+
+第三步：如果C++ Hardware Interface 代码中只 export 了 position， 那么ros2_controllers.yaml 中，你控制器也只能有 position，不能有velocity
+
+*************************
+joint      init-value      range
+joint_1       0            -90 ~ +90
+joint_2      -90           -90 ~ +90
+joint_3       88           -88 ~ +88
+joint_4      -88           -88 ~ +88
+joint_5       0          -150 ~ +150
+joint_6       0          -110 ~   0
+
+*******************
+
+上电跳变
+1. 限制扭矩 (在 on_activate 中设置)
+on_activate 是硬件接口从“准备就绪”进入“正式运行”的时刻，最适合做安全配置。
+2. 限制速度与加速度 (在 write 中设置)
+在你之前的 write 代码里，speeds 和 accels 是硬编码的。
+3. 为了不用每次调速度都重新编译代码，你可以在 URDF 的 <ros2_control> 标签里加入参数，然后在 on_init 里读取
+
+colcon build --packages-select so101_hardware
+
+
+*********************************
+
+srdf中低级错误    <group name="gripper">
+        <link name="gripper"/>
+        <link name="moving_jaw_so101_v1"/>
+    </group>
+    
+    应该是
+    
+        <group name="gripper">
+        <joint name="joint_6"/> 
+    </group>
+    
+****************************
+    
+    # 启动硬件接口（这会尝试加载你的 C++ 插件）
+ros2 launch so_arm101_moveit_config demo.launch.py
+
+*****************************
+
+1. 核心原因：URDF 还在使用“假”硬件
+检查你上传的 so100.ros2_control.xacro 文件，你会发现第 10 行写的是：
+<hardware>
+    <plugin>mock_components/GenericSystem</plugin>
+</hardware>
+修改 so100.ros2_control.xacro，将其指向你的真实插件：
+<hardware>
+    <plugin>so101_hardware/SO101HardwareInterface</plugin>
+    <param name="device">/dev/ttyUSB0</param> </hardware>

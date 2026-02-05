@@ -1,0 +1,3 @@
+/home/xiaobo/FTServo/FTServo_Linux-main/src/CMakeFiles/SCServo.dir
+/home/xiaobo/FTServo/FTServo_Linux-main/src/CMakeFiles/edit_cache.dir
+/home/xiaobo/FTServo/FTServo_Linux-main/src/CMakeFiles/rebuild_cache.dir

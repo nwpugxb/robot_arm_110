@@ -365,50 +365,49 @@
         <box size="0.010 0.01 0.02"/>
       </geometry>
     </collision>     
-  </link>
-  
-  
+  </link> 
   
   <joint name="joint_6" type="revolute">
     <origin xyz="0.0202 0.0188 -0.0234" rpy="1.5708 -5.24284e-08 -1.41553e-15"/>
     <parent link="gripper"/>
     <child link="moving_jaw_so101_v1"/>
     <axis xyz="0 0 1"/>
-    <limit effort="10" velocity="10" lower="-0.174533" upper="1.74533"/>
+    <limit effort="10" velocity="10" lower="0.00" upper="1.5708"/>
   </joint>
   <joint name="joint_5" type="revolute">
     <origin xyz="2.77556e-16 -0.0611 0.0181" rpy="1.5708 0.0486795 3.14159"/>
     <parent link="wrist"/>
     <child link="gripper"/>
     <axis xyz="0 0 1"/>
-    <limit effort="10" velocity="10" lower="-2.74385" upper="2.84121"/>
+    <limit effort="10" velocity="10" lower="-2.6180" upper="2.6180"/>
   </joint>
   <joint name="joint_4" type="revolute">
     <origin xyz="-0.1349 0.0052 8.44651e-17" rpy="4.02456e-15 8.67362e-16 -1.5708"/>
     <parent link="lower_arm"/>
     <child link="wrist"/>
     <axis xyz="0 0 1"/>
-    <limit effort="10" velocity="10" lower="-1.65806" upper="1.65806"/>
+    <limit effort="10" velocity="10" lower="-1.5359" upper="1.5359"/>
   </joint>
   <joint name="joint_3" type="revolute">
     <origin xyz="-0.11257 -0.028 2.09886e-16" rpy="-3.63608e-16 8.74301e-16 1.5708"/>
     <parent link="upper_arm"/>
     <child link="lower_arm"/>
     <axis xyz="0 0 1"/>
-    <limit effort="10" velocity="10" lower="-1.74533" upper="1.5708"/>
+    <limit effort="10" velocity="10" lower="-1.5359" upper="1.5359"/>
   </joint>
   <joint name="joint_2" type="revolute">
     <origin xyz="-0.0303992 -0.0182778 -0.0542" rpy="-1.5708 -1.5708 0"/>
     <parent link="shoulder"/>
     <child link="upper_arm"/>
     <axis xyz="0 0 1"/>
-    <limit effort="10" velocity="10" lower="-1.74533" upper="1.74533"/>
+    <limit effort="10" velocity="10" lower="-1.57" upper="1.57"/>
   </joint>
   <joint name="joint_1" type="revolute">
     <origin xyz="-0.124202 -0.168068 0.0948817" rpy="3.14159 4.18253e-17 -3.14159"/>
     <parent link="base"/>
     <child link="shoulder"/>
     <axis xyz="0 0 1"/>
-    <limit effort="10" velocity="10" lower="-1.91986" upper="1.91986"/>
-  </joint>
+    <limit effort="10" velocity="10" lower="-1.57" upper="1.57"/>
+  </joint>  
+
 </robot>
