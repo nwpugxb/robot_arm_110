@@ -26,6 +26,7 @@ public:
 private:
   std::vector<double> hw_commands_;
   std::vector<double> hw_states_;
+  std::vector<uint8_t> joint_ids_;
 };
 }  // namespace so101_hardware
 #endif
