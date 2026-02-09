@@ -82,6 +82,22 @@ hardware_interface::return_type SO101HardwareInterface::read(const rclcpp::Time 
   for (size_t i = 0; i < hw_states_.size(); i++) {
     int id = std::stoi(info_.joints[i].parameters.at("id"));
     int pos = sms_sts.ReadPos(id);
+
+    // 钢丝网 1：拦截通讯错误值 (-1 或 32767)
+    if (pos == -1 || pos == 32767) {
+      RCLCPP_ERROR_THROTTLE(rclcpp::get_logger("SO101HardwareInterface"), steady_clock, 1000, 
+                            "读取 ID:%d 失败！保持上一帧位置，防止炸机。", id);
+      continue; // 跳过当前关节更新，保持 hw_states_[i] 为旧值
+    }
+
+    // 钢丝网 2：逻辑限幅检查
+    double current_val = (static_cast<double>(pos) - 2048.0) * (M_PI / 2048.0);
+    if (current_val > 3.14 || current_val < -3.14) {
+      RCLCPP_FATAL(rclcpp::get_logger("SO101HardwareInterface"), 
+                   "ID:%d 反馈位置 [%f] 严重越界！触发安全拦截。", id, current_val);
+      return hardware_interface::return_type::ERROR;
+    }
+
     if (pos != -1) {
       double physical_radian = (static_cast<double>(pos) - 2048.0) * (M_PI / 2048.0);
       
@@ -150,32 +166,44 @@ hardware_interface::return_type SO101HardwareInterface::write(
   if (dt < 1e-6) dt = 0.02;
 
   // 这里的参数建议根据手感调整
-  const double Kp = 15.0;            // 适中的增益，不要直接用 1/dt
+  const double Kp = 1000;            // 适中的增益，不要直接用 1/dt
   const uint16_t SPEED_MIN = 20;     
-  const uint16_t SPEED_MAX = 1000;   // STS3215 建议不要超过 2400
-  const uint8_t  ACC_VAL   = 20;     // 加速度建议写死，轨迹更平滑
+  const uint16_t SPEED_MAX = 100;   // STS3215 建议不要超过 2400
+  const uint8_t  ACC_VAL   = 10;     // 加速度建议写死，轨迹更平滑
 
   for (size_t i = 0; i < n; i++) {
     // 假设你已经在 on_init 缓存了 ID
     uint8_t id = joint_ids_[i];
     ids[i] = id;
 
-    //RCLCPP_INFO_THROTTLE(rclcpp::get_logger("SO101HardwareInterface"), "id set :%d ", ids[i]);
+    // 1. 非法值检查 (NaN/Inf)
+    if (std::isnan(hw_commands_[i]) || std::isinf(hw_commands_[i])) {
+      RCLCPP_ERROR(rclcpp::get_logger("SO101HardwareInterface"), 
+                   "关节 ID:%d 收到非法指令！已跳过。", id);
+      continue;
+    }
 
-    // 1. 目标位置转换
-    double cmd_rad = hw_commands_[i];
-    if (id == 6) cmd_rad -= (M_PI / 2.0);
-    double target_cnt = (cmd_rad * 2048.0 / M_PI) + 2048.0;
-    positions[i] = static_cast<int16_t>(std::clamp(target_cnt, 0.0, 4095.0));
+    double target_rad = hw_commands_[i];
 
-    // 2. 速度计算：使用 P 控制逻辑
-    double cur_rad = hw_states_[i];
-    if (id == 6) cur_rad -= (M_PI / 2.0);
-    double cur_cnt = (cur_rad * 2048.0 / M_PI) + 2048.0;
+    // 2. 钢丝网 3：突跳拦截 (防止瞬移)
+    // 限制每帧位移不超过 0.1 弧度 (约 5.7 度)
+    double delta = target_rad - hw_states_[i];
+    if (std::abs(delta) > 0.1) {
+      RCLCPP_WARN_THROTTLE(rclcpp::get_logger("SO101HardwareInterface"), steady_clock, 500,
+                           "ID:%d 尝试突跳 %f 弧度，已截断。", id, delta);
+      target_rad = hw_states_[i] + (delta > 0 ? 0.1 : -0.1);
+    }
 
-    double error = std::fabs(target_cnt - cur_cnt);
+    // 3. 针对特定关节的补偿 (如 6 号关节的偏移)
+    double send_rad = target_rad;
+    if (id == 6) send_rad -= (M_PI / 2.0);
+
+    // 4. 转换并限幅写入
+    int target_cnt = static_cast<int>(send_rad * 2048.0 / M_PI + 2048.0);
+    positions[i] = std::clamp(target_cnt, 0, 4095);
     
     // 核心修改：使用 Kp 增益
+    double error = std::fabs(delta);
     double v = error * Kp; 
 
     // 死区处理：防止原地抖动
